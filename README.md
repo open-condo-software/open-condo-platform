@@ -13,6 +13,7 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
  - [x] docs: how-to create frontend app 
  - [x] docs: how-to write backend app
  - [x] docs: how-to upgrade packages versions
+ - [x] docs: how-to use with postgres
  - [x] example: Ant Design Pro + Next.js
  - [x] example: Internationalization (react-intl)
  - [x] ForgotUserPassword: Schema, API, Tests
@@ -190,12 +191,23 @@ yarn workspace @app/_example01app dev
 # You can also check `apps/_example02app` and others examples
 ```
 
-### Add package to existing APP
+### Add package to existing APP ###
 
 ```bash
 # Add new package to APP
 yarn workspace @app/_example01app add antd
 ```
+
+### How-to use with postgres ###
+
+You need to set `DATABASE_URL` like `postgresql://postgres:postgres@127.0.0.1/main`.
+```bash
+# 1 create tables
+yarn workspace @app/_back02keystone create-tables
+```
+
+**NOTE**: And there is no solutions to migrations yet... 
+You can try `knex` migrations and writ about it here.
 
 ### Upgrade packages versions ###
 
@@ -203,21 +215,6 @@ yarn workspace @app/_example01app add antd
 # just run the command, and select packages for update (this command will fix the package.json files) 
 yarn upgrade-interactive --latest
 ```
-
-### TESTS_FAKE_CLIENT_MODE ###
-
-`@core/keystone/test.utils` can work in two modes:
- 1. create real client and make a requests by HTTP to remote server
- 2. create fake client and express app and make a inner express requests by `supertest` lib 
-
-The first mode is better for end-to-end tests. You can also use it for test your production.
-
-The second mode is better for debugging. Because it uses one process for whole request/response process.
-If you want to use TDD like development process and to easy debug end-to-end process.
-
-You can use `TESTS_FAKE_CLIENT_MODE` to change test mode. This options setup express app and client in one process.
-This allows you to put debugger breakpoints in any part of the request processing process. 
-And use IDE integrations for easy debugging.
 
 ## Tips
 
