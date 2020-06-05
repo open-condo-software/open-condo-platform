@@ -48,7 +48,6 @@ const ForgotForm = () => {
     const ForgotPasswordStartedDescriptionMsg = intl.formatMessage({ id: 'pages.auth.ForgotPasswordStartedDescription' })
 
     const onFinish = values => {
-        if (values.email) values.email = values.email.toLowerCase()
         setIsLoading(true)
         startPasswordRecovery({ variables: values })
             .then(
