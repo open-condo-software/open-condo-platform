@@ -162,8 +162,6 @@ function BaseLayout (props) {
 
     const title = props.title || null
     const subTitle = props.subTitle || null
-    const pageHeaderContent = props.pageHeaderContent || null
-    const pageHeaderExtra = props.pageHeaderExtra || null
     const breadcrumbData = getBreadcrumbFromMenuData(menuData, pathname, menuItemRender, localeRender, onClickMenuItem)
     const hasPageHeader = Boolean(title || subTitle || breadcrumbData)
 
@@ -190,10 +188,7 @@ function BaseLayout (props) {
                     <PageHeader className="page-header" css={pageHeaderCss}
                                 style={{display: (hasPageHeader) ? 'block' : 'none'}}
                                 title={title} subTitle={subTitle}
-                                extra={pageHeaderExtra}
-                                breadcrumb={{routes: breadcrumbData}}>
-                        {pageHeaderContent}
-                    </PageHeader>
+                                breadcrumb={{routes: breadcrumbData}}/>
                     <div className="page-content" css={pageContentCss}>
                         {props.children}
                     </div>
