@@ -58,16 +58,13 @@ const SListActionsUl = styled.ul`
     }
 `
 
-function FormList ({ dataSource, renderItem, ...extra }) {
-    if (!renderItem) throw new Error('renderItem prop is required')
-
+function FormList ({ renderItem, ...extra }) {
     const intl = useIntl()
     const NoDataMsg = intl.formatMessage({ id: 'NoData' })
 
     return <List
         size="large"
         itemLayout={'horizontal'}
-        dataSource={dataSource}
         renderItem={renderItemWrapper}
         locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={NoDataMsg}/> }}
         {...extra}
@@ -128,11 +125,10 @@ function CreateFormListItemButton ({ label, ...extra }) {
 }
 
 function ExtraDropdownActionsMenu ({ actions }) {
-    const actionsLine = actions.filter(identity)
     const [popConfirmProps, setPopConfirmProps] = useState({ visible: false, title: null, icon: null })
 
     function handleAction ({ key }) {
-        const action = actionsLine[key]
+        const action = actions[key]
         if (action.confirm) {
             setPopConfirmProps({
                 visible: true,
@@ -148,7 +144,7 @@ function ExtraDropdownActionsMenu ({ actions }) {
 
     return <Popconfirm {...popConfirmProps}>
         <Dropdown overlay={<Menu onClick={handleAction}>
-            {actionsLine.map((action, i) => <Menu.Item key={i}>{action.label}</Menu.Item>)}
+            {actions.map((action, i) => <Menu.Item key={i}>{action.label}</Menu.Item>)}
         </Menu>}>
             <a> ... <DownOutlined/></a>
         </Dropdown>

@@ -35,7 +35,7 @@ function menuDataRender() {
                 locale: 'menu.Tickets',
             },
             {
-                path: '/users',
+                path: '/employee',
                 icon: <UserOutlined/>,
                 locale: 'menu.Employee',
             },
