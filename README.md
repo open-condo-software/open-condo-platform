@@ -38,7 +38,6 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
  - [x] Organization: invite user by email for existing emails: Page (example)
  - [ ] Organization: invite user by email for new emails: Page (example)
  - [x] Organization: invited users list: Page (example)
- - [x] Organization: bulk invite from excel file: Page (example)
  - [x] Organization: accept/reject invites: Schema, API, Tests
  - [x] Organization: accept/reject invites: Page (example)
  - [x] User: reusable customization (like django.auth.user)
@@ -53,13 +52,12 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
  - [x] Layout: Mobile first support
  - [x] Layout: FormList container (container for list of items)
  - [x] Layout: FormTable container (container for table items)
- - [x] Layout: Excel export container (container for exporting excel data)
+ - [ ] Layout: Excel export container (container for exporting excel data)
  - [ ] Layout: Dark mode
  - [ ] Layout: Antd compatible theme example (global variables for padding/margin/colors)
  - [ ] Layout: change site language widget
  - [ ] docs: project structure
  - [x] docs: Deploy
- - [ ] docs: step by step create new project example (like Next.js, like Django app)
  - [ ] UserNotifications: Schema, API, Tests
  - [ ] UserNotifications: Page (example 05 top menu) 
  - [ ] UserProfileSettings: Schema, API, Tests
@@ -232,53 +230,6 @@ yarn workspace @app/_example01app dev
 # `yarn workspace @app/_example01app <command>`
 
 # You can also check `apps/_example02app` and others examples
-```
-
-## Write mobile app ##
-
-### Create Expo APP
-
-```shell script
-cd apps
-expo init _mobile01
-cd ..
-# based on https://stackoverflow.com/questions/59920012/monorepo-expo-with-yarn-workspace-and-using-expo-install
-cat > apps/_mobile01/package.json << ENDOFFILE
-{
-  "name": "@app/_mobile01",
-  "version": "1.0.0",
-  "main": "__generated__/AppEntry.js",
-  "scripts": {
-    "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
-    "web": "expo start --web",
-    "eject": "expo eject",
-    "postinstall": "expo-yarn-workspaces postinstall"
-  },
-  "dependencies": {
-    "expo": "~38.0.8",
-    "expo-status-bar": "^1.0.2",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
-    "react-native": "https://github.com/expo/react-native/archive/sdk-38.0.2.tar.gz",
-    "react-native-web": "~0.11.7"
-  },
-  "devDependencies": {
-    "@babel/core": "^7.8.6",
-    "babel-preset-expo": "~8.1.0",
-    "expo-yarn-workspaces": "^1.2.1"
-  }
-}
-ENDOFFILE
-cat > apps/_mobile01/metro.config.js << ENDOFFILE
-const { createMetroConfiguration } = require("expo-yarn-workspaces");
-
-module.exports = createMetroConfiguration(__dirname);
-ENDOFFILE
-yarn
-yarn workspace @app/_mobile01 postinstall
-
 ```
 
 # Deploy #
