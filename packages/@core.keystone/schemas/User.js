@@ -141,24 +141,23 @@ const ForgotPasswordAction = new GQLListSchema('ForgotPasswordAction', {
 const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
     mutations: [
         {
-            access: true,
             schema: 'startPasswordRecovery(email: String!): String',
-            resolver: async (parent, args, context, info, extra = {}) => {
+            access: true,
+            resolver: async (_, { email }, context, info, { query }) => {
+                const token = uuid()
+                const tokenExpiration = parseInt(RESET_PASSWORD_TOKEN_EXPIRY)
+
+                const nowTimestamp = Date.now()
+                const requestedAt = new Date(nowTimestamp).toISOString()
+                const expiresAt = new Date(nowTimestamp + tokenExpiration).toISOString()
+
+                // before hook
                 await ForgotPasswordService.emit('beforeStartPasswordRecovery', {
-                    parent, args, context, info, extra,
+                    email, requestedAt, expiresAt, token,
                 })
 
-                const { email } = args
-                const extraToken = extra.extraToken || uuid()
-                const extraTokenExpiration = extra.extraTokenExpiration || parseInt(RESET_PASSWORD_TOKEN_EXPIRY)
-                const extraNowTimestamp = extra.extraNowTimestamp || Date.now()
-
-                const requestedAt = new Date(extraNowTimestamp).toISOString()
-                const expiresAt = new Date(extraNowTimestamp + extraTokenExpiration).toISOString()
-
-                const { errors: userErrors, data: userData } = await context.executeGraphQL({
-                    context: context.createContext({ skipAccessControl: true }),
-                    query: `
+                const { errors: userErrors, data: userData } = await query(
+                    `
                         query findUserByEmail($email: String!) {
                           allUsers(where: { email: $email }) {
                             id
@@ -166,8 +165,8 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                           }
                         }
                     `,
-                    variables: { email },
-                })
+                    { variables: { email }, skipAccessControl: true },
+                )
 
                 if (userErrors || !userData.allUsers || !userData.allUsers.length) {
                     throw new Error('[unknown-user]: Unable to find user when trying to start password recovery')
@@ -181,14 +180,13 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
 
                 const variables = {
                     userId,
-                    token: extraToken,
+                    token,
                     requestedAt,
                     expiresAt,
                 }
 
-                const { errors: createErrors } = await context.executeGraphQL({
-                    context: context.createContext({ skipAccessControl: true }),
-                    query: `
+                const { errors: createErrors } = await query(
+                    `
                         mutation createForgotPasswordAction(
                           $userId: ID!,
                           $token: String,
@@ -212,8 +210,8 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                           }
                         }
                     `,
-                    variables,
-                })
+                    { variables, skipAccessControl: true },
+                )
 
                 if (createErrors) {
                     console.error(createErrors)
@@ -221,23 +219,22 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                 }
 
                 // prepare emit context
-                const { errors: userAndTokenErrors, data } = await context.executeGraphQL({
-                    context: context.createContext({ skipAccessControl: true }),
-                    query: `
-                        query GetUserAndToken($user: ID!, $now: DateTime!) {
-                          User( where: { id: $user }) {
-                            id
-                            email
-                          }
-                          allForgotPasswordActions( where: { user: { id: $user }, expiresAt_gte: $now, usedAt: null }) {
-                            token
-                            requestedAt
-                            expiresAt
-                          }
-                        }
-                    `,
-                    variables: { user: userId, now: requestedAt },
-                })
+                const { errors: userAndTokenErrors, data } = await query(
+                    `
+                    query GetUserAndToken($user: ID!, $now: DateTime!) {
+                      User( where: { id: $user }) {
+                        id
+                        email
+                      }
+                      allForgotPasswordActions( where: { user: { id: $user }, expiresAt_gte: $now, usedAt: null }) {
+                        token
+                        requestedAt
+                        expiresAt
+                      }
+                    }
+                `,
+                    { skipAccessControl: true, variables: { user: userId, now: requestedAt } },
+                )
 
                 if (userAndTokenErrors) {
                     console.error(userAndTokenErrors)
@@ -247,33 +244,30 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                 const ForgotPasswordAction = data.allForgotPasswordActions[0]
                 const User = data.User
 
-                const result = {
+                // hook for send mail!
+                await ForgotPasswordService.emit('afterStartPasswordRecovery', {
                     User,
                     ForgotPasswordAction,
                     forgotPasswordUrl: `${SERVER_URL}/auth/change-password?token=${ForgotPasswordAction.token}`,
-                }
-                // hook for send mail!
-                await ForgotPasswordService.emit('afterStartPasswordRecovery', {
-                    parent, args, context, info, extra, result,
                 })
+
                 return 'ok'
             },
         },
         {
-            access: true,
             schema: 'changePasswordWithToken(token: String!, password: String!): String',
-            resolver: async (parent, args, context, info, extra) => {
+            access: true,
+            resolver: async (_, { token, password }, context, info, { query }) => {
+                const now = (new Date(Date.now())).toISOString()
+
+                // before hook
                 await ForgotPasswordService.emit('beforeChangePasswordWithToken', {
-                    parent, args, context, info, extra,
+                    now, token, password,
                 })
 
-                const { token, password } = args
-                const now = extra.extraNow || (new Date(Date.now())).toISOString()
-
-                // check usedAt
-                const { errors, data } = await context.executeGraphQL({
-                    context: context.createContext({ skipAccessControl: true }),
-                    query: `
+                const { errors, data } = await query(
+                    // check usedAt
+                    `
                         query findUserFromToken($token: String!, $now: DateTime!) {
                           passwordTokens: allForgotPasswordActions(where: { token: $token, expiresAt_gte: $now }) {
                             id
@@ -285,8 +279,8 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                           }
                         }
                     `,
-                    variables: { token, now },
-                })
+                    { variables: { token, now }, skipAccessControl: true },
+                )
 
                 if (errors || !data.passwordTokens || !data.passwordTokens.length) {
                     const msg = '[error] Unable to find token'
@@ -298,9 +292,8 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                 const tokenId = data.passwordTokens[0].id
 
                 // mark token as used
-                const { errors: markAsUsedError } = await context.executeGraphQL({
-                    context: context.createContext({ skipAccessControl: true }),
-                    query: `
+                const { errors: markAsUsedError } = await query(
+                    `
                         mutation markTokenAsUsed($tokenId: ID!, $now: DateTime!) {
                           updateForgotPasswordAction(id: $tokenId, data: {usedAt: $now}) {
                             id
@@ -308,8 +301,8 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                           }
                         }           
                     `,
-                    variables: { tokenId, now },
-                })
+                    { variables: { tokenId, now }, skipAccessControl: true },
+                )
 
                 if (markAsUsedError) {
                     const msg = '[error] Unable to mark token as used'
@@ -318,92 +311,72 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                 }
 
                 // change password
-                const { errors: passwordError } = await context.executeGraphQL({
-                    context: context.createContext({ skipAccessControl: true }),
-                    query: `
+                const { errors: passwordError } = await query(
+                    `
                         mutation UpdateUserPassword($user: ID!, $password: String!) {
                           updateUser(id: $user, data: { password: $password }) {
                             id
                           }
                         }
                     `,
-                    variables: { user, password },
-                })
+                    { variables: { user, password }, skipAccessControl: true },
+                )
 
                 if (passwordError) {
-                    const msg = '[error] Unable to change password'
+                    const msg = 'Unable to change password'
                     console.error(msg, passwordError)
                     throw new Error(msg)
                 }
 
                 // hook for send mail!
-                const result = {
+                await ForgotPasswordService.emit('afterChangePasswordWithToken', {
                     User: data.passwordTokens[0].user,
                     ForgotPasswordAction: data.passwordTokens[0],
-                }
-                await ForgotPasswordService.emit('afterChangePasswordWithToken', {
-                    parent, args, context, info, extra, result,
                 })
+
                 return 'ok'
             },
         },
     ],
 })
 
-const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
-    types: [
-        {
-            access: true,
-            type: 'input RegisterNewUserInput { name: String!, email: String!, password: String! }',
-        },
-    ],
+const RegisterService = new GQLCustomSchema('RegisterService', {
     mutations: [
         {
             access: true,
-            schema: 'registerNewUser(data: RegisterNewUserInput!): User',
-            resolver: async (parent, args, context, info, extra = {}) => {
-                await RegisterNewUserService.emit('beforeRegisterNewUser', {
-                    parent, args, context, info, extra,
-                })
+            schema: 'registerNewUser(name: String!, email: String!, password: String!, captcha: String!): User',
+            resolver: async (_, { name, email, password }, context, info, { query }) => {
+                await RegisterService.emit('beforeRegisterNewUser', { name, email, password })
 
-                const { data } = args
-                const extraUserData = extra.extraUserData || {}
-                const { email, password } = data
-
-                {
-                    // TODO(pahaz): check email is valid!
-                    const { errors: errors1, data: data1 } = await context.executeGraphQL({
-                        context: context.createContext({ skipAccessControl: true }),
-                        query: `
+                // TODO(pahaz): check email is valid!
+                // TODO(pahaz): check phone is valid!
+                const { errors: errors1, data: data1 } = await query(
+                    `
                         query findUserByEmail($email: String!) {
                           users: allUsers(where: { email: $email }) {
                             id
                           }
                         }
                     `,
-                        variables: { email },
-                    })
+                    { variables: { email }, skipAccessControl: true },
+                )
 
-                    if (errors1) {
-                        const msg = '[error] Unable to call find service'
-                        console.error(msg, errors1)
-                        throw new Error(msg)
-                    }
+                if (errors1) {
+                    throw errors1.message
+                }
 
-                    if (data1.users.length !== 0) {
-                        throw new Error(`[register:email:multipleFound] User with this email is already registered`)
-                    }
+                if (data1.users.length !== 0) {
+                    throw new Error(`[register:email:multipleFound] User with this email is already registered`)
                 }
 
                 if (password.length < 8) {
                     throw new Error(`[register:password:minLength] Password length less then 7 character`)
                 }
 
-                const { errors: errors2, data: data2 } = await context.executeGraphQL({
-                    context: context.createContext({ skipAccessControl: true }),
-                    query: `
-                        mutation create($data: UserCreateInput!) {
-                          user: createUser(data: $data) {
+                const result = await query(
+                    `
+                        mutation createNewUser($email: String!, $password: String!, $name: String!) {
+                          user: createUser(data: { email: $email, password: $password, name: $name }) {
                             id
                             name
                             email
@@ -412,23 +385,17 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                           }
                         }
                     `,
-                    variables: { data: { ...data, ...extraUserData } },
-                })
+                    { variables: { name, email, password }, skipAccessControl: true },
+                )
 
-                if (errors2) {
-                    const msg = '[error] Unable to create user'
-                    console.error(msg, errors2)
-                    throw new Error(msg)
+                if (result.errors) {
+                    throw result.errors.message
                 }
 
                 // Send mail hook!
-                const result = {
-                    User: data2.user,
-                }
-                await RegisterNewUserService.emit('afterRegisterNewUser', {
-                    parent, args, context, info, extra, result,
-                })
-                return result.User
+                await RegisterService.emit('afterRegisterNewUser', { User: result.data.user })
+
+                return result.data.user
             },
         },
     ],
@@ -438,5 +405,5 @@ module.exports = {
     User,
     ForgotPasswordAction,
     ForgotPasswordService,
-    RegisterNewUserService,
+    RegisterService,
 }
