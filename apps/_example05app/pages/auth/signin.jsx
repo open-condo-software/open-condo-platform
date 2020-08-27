@@ -11,6 +11,15 @@ import { TopMenuOnlyLayout } from '../../containers/BaseLayout'
 import { getQueryParams } from '../../utils/url.utils'
 import { runMutation } from '../../utils/mutations.utils'
 
+const layout = {
+    // labelCol: { sm: {}, md: { span: 12 } },
+    // wrapperCol: { sm: {}, md: { span: 24 } },
+}
+
+const tailLayout = {
+    // wrapperCol: { sm: {}, md: { offset: 12, span: 24 } },
+}
+
 const SignInForm = () => {
     const [form] = Form.useForm()
     const intl = useIntl()
@@ -63,6 +72,7 @@ const SignInForm = () => {
 
     return (
         <Form
+            {...layout}
             form={form}
             name="signin"
             onFinish={onFinish}
@@ -85,11 +95,11 @@ const SignInForm = () => {
             >
                 <Input.Password/>
             </Form.Item>
-            <Form.Item style={{ textAlign: 'right' }}>
+            <Form.Item {...tailLayout} style={{ textAlign: 'right' }}>
                 <a onClick={() => Router.push('/auth/forgot')}>{ForgotPasswordMsg}</a>
             </Form.Item>
 
-            <Form.Item style={{ textAlign: 'center' }}>
+            <Form.Item {...tailLayout} style={{ textAlign: 'center' }}>
                 <Button type="primary" htmlType="submit" loading={isLoading}>
                     {SignInMsg}
                 </Button>
