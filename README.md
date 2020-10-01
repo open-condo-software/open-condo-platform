@@ -32,6 +32,7 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
  - [x] Auth: SignIn/SignOut Page (example)
  - [x] Auth: SignIn next url support
  - [x] Auth: AuthRequired component
+ - [x] Auth: ByPhone (API, example)
  - [ ] Auth: Options captcha support
  - [x] User: Schema, API, Tests
  - [x] Organization: CRUD: Schema, API, Tests
@@ -48,6 +49,7 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
  - [ ] User: unique phone/email check (for mongo/postgres)! 
  - [x] Register: Schema, API, Test
  - [x] Register: Page (example)
+ - [x] Register: ByPhone (API, example)
  - [ ] Register: Email verification (isEmailVerified)
  - [x] Register: Phone verification (isPhoneVerified)
  - [ ] Register: Extensibility (like django-registrations)
@@ -479,11 +481,3 @@ Every app should have `multi-app-support.js` file. Check `_back02keystone`, `_ex
  - `yarn <command>` -- run command (`yarn dev`)
  - `yarn workspace @app/<name> <command>` -- run command inside workspace (`yarn workspace @app/web dev`)
  - `yarn --cwd <app-path-name> <command>` -- run command inside app (`yarn --cwd apps/web dev`)
-
-### prettier
-
- - `yarn prettier --write <directory>` process files in directory by prettier
- - `yarn prettier --check <directory>` check if files in directory are processed with prettier
- - To ignore a whole application change the global `.prettierignore` 
-
-[//]: # "last point would be changed if this > https://github.com/prettier/prettier/pull/6203 gets merged into master"
