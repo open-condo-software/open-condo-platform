@@ -15,14 +15,12 @@
     "build": "node ./bin/run-build-all"
   },
   "devDependencies": {
-    "prettier": "2.1.2"
+    "prettier": "^2.1.2"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
-  "lint-staged": {
-    "*.{js,css,md}": "prettier --write"
+  "prettier": {
+    "trailingComma": "es5",
+    "tabWidth": 4,
+    "semi": false,
+    "singleQuote": true
   }
 }
