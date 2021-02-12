@@ -1,22 +1,22 @@
-import { useIntl } from '@core/next/intl'
 import Head from 'next/head'
 import Link from 'next/link'
 import React, { useEffect } from 'react'
 import { Avatar, Button, Form, Input, Select } from 'antd'
 
+import { useIntl } from '@core/next/intl'
 import { useAuth } from '@core/next/auth'
 import { useOrganization } from '@core/next/organization'
 
-import { PageContent, PageHeader, PageWrapper } from '../../containers/BaseLayout'
-import { OrganizationRequired } from '../../containers/OrganizationRequired'
+import { PageContent, PageHeader, PageWrapper } from '@app/ex02front/containers/BaseLayout'
+import { OrganizationRequired } from '@app/ex02front/containers/OrganizationRequired'
 import FormList, {
     BaseModalForm,
     CreateFormListItemButton,
     ExpandableDescription,
     useCreateAndEditModalForm,
-} from '../../containers/FormList'
-import { useTable } from '../../containers/FormTableBlocks'
-import { SearchInput } from '../../containers/FormBlocks'
+} from '@app/ex02front/containers/FormList'
+import { useTable } from '@app/ex02front/containers/FormTableBlocks'
+import { SearchInput } from '@app/ex02front/containers/FormBlocks'
 
 import { useCreate, useObjects } from '../../schema/Property.uistate'
 

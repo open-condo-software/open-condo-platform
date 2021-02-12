@@ -2,7 +2,8 @@ import React from 'react'
 import Head from 'next/head'
 import { CacheProvider } from '@emotion/core'
 import { cache } from 'emotion'
-import { DashboardOutlined, UserOutlined } from '@ant-design/icons'
+import { DashboardOutlined, ExceptionOutlined, HomeOutlined, UserOutlined } from '@ant-design/icons'
+
 import whyDidYouRender from '@welldone-software/why-did-you-render'
 
 import { withApollo } from '@core/next/apollo'
@@ -10,10 +11,10 @@ import { withAuth } from '@core/next/auth'
 import { withIntl } from '@core/next/intl'
 import { useOrganization, withOrganization } from '@core/next/organization'
 
-import GlobalStyle from '../containers/GlobalStyle'
-import GoogleAnalytics from '../containers/GoogleAnalytics'
-import BaseLayout from '../containers/BaseLayout'
-import GlobalErrorBoundary from '../containers/GlobalErrorBoundery'
+import GlobalStyle from '@app/ex02front/containers/GlobalStyle'
+import GoogleAnalytics from '@app/ex02front/containers/GoogleAnalytics'
+import BaseLayout from '@app/ex02front/containers/BaseLayout'
+import GlobalErrorBoundary from '@app/ex02front/containers/GlobalErrorBoundery'
 
 import { GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY } from '../schema/Organization.gql'
 
@@ -25,12 +26,22 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
 
 function menuDataRender () {
     const org = useOrganization()
-    if (org && org.link && org.link.role === 'owner') {
+    if (org && org.link) {
         return [
             {
                 path: '/',
                 icon: <DashboardOutlined/>,
                 locale: 'menu.Home',
+            },
+            {
+                path: '/property',
+                icon: <HomeOutlined/>,
+                locale: 'menu.Property',
+            },
+            {
+                path: '/ticket',
+                icon: <ExceptionOutlined/>,
+                locale: 'menu.Ticket',
             },
             {
                 path: '/users',
@@ -72,8 +83,9 @@ const MyApp = ({ Component, pageProps }) => {
 }
 
 async function messagesImporter (locale) {
-    const locale_data = await import(`../lang/${locale}`)
-    return { ...locale_data.default }
+    const base = await import(`../../_ex02front/lang/${locale}`)
+    const override = await import(`../lang/${locale}`)
+    return { ...base.default, ...override.default }
 }
 
 export default (
