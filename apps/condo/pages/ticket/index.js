@@ -7,21 +7,21 @@ import { Form, Input, Space } from 'antd'
 
 import { useOrganization } from '@core/next/organization'
 
-import { PageContent, PageHeader, PageWrapper } from '../../containers/BaseLayout'
-import { OrganizationRequired } from '../../containers/OrganizationRequired'
+import { PageContent, PageHeader, PageWrapper } from '@app/ex02front/containers/BaseLayout'
+import { OrganizationRequired } from '@app/ex02front/containers/OrganizationRequired'
 import {
     RenderActionsColumn,
     toGQLSortBy,
     useTable,
     ViewOrEditTableBlock,
-} from '../../containers/FormTableBlocks'
+} from '@app/ex02front/containers/FormTableBlocks'
 import {
     BaseModalForm,
     CreateFormListItemButton,
     useCreateAndEditModalForm,
-} from '../../containers/FormList'
-import { SearchInput } from '../../containers/FormBlocks'
-import { runMutation } from '../../utils/mutations.utils'
+} from '@app/ex02front/containers/FormList'
+import { SearchInput } from '@app/ex02front/containers/FormBlocks'
+import { runMutation } from '@app/ex02front/utils/mutations.utils'
 
 import { useCreate, useObjects, useUpdate } from '../../schema/Ticket.uistate'
 
@@ -111,7 +111,7 @@ function _useTicketColumns () {
             editable: false,
             importFromFile: true,
             render: (text, item, index) => {
-                return <Link href={`/condo/ticket/${item.id}`}><a>{text}</a></Link>
+                return <Link href={`/ticket/${item.id}`}><a>{text}</a></Link>
             },
         },
         {
