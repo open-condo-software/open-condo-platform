@@ -5,10 +5,10 @@ const { Text, Relationship, Uuid, Integer, DateTimeUtc } = require('@keystonejs/
 const access = require('@core/keystone/access')
 const { Json } = require('@core/keystone/fields')
 
-const { JSON_EXPECT_OBJECT_ERROR } = require('../constants/errors')
-const { JSON_WRONG_VERSION_FORMAT_ERROR } = require('../constants/errors')
-const { REQUIRED_NO_VALUE_ERROR } = require('../constants/errors')
-const { JSON_UNKNOWN_VERSION_ERROR } = require('../constants/errors')
+const { JSON_EXPECT_OBJECT_ERROR } = require('../consts/errors')
+const { JSON_WRONG_VERSION_FORMAT_ERROR } = require('../consts/errors')
+const { REQUIRED_NO_VALUE_ERROR } = require('../consts/errors')
+const { JSON_UNKNOWN_VERSION_ERROR } = require('../consts/errors')
 
 const DV_FIELD = {
     factory: () => 1,
@@ -60,8 +60,23 @@ const ORGANIZATION_OWNED_FIELD = {
     },
 }
 
+const COMMON_AND_ORGANIZATION_OWNED_FIELD = {
+    schemaDoc: 'Ref to the organization. If this ref is null the object is common for all organizations',
+    type: Relationship,
+    ref: 'Organization',
+    isRequired: true,
+    kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
+    // TODO(pahaz): check access to organization (can't create without organization)!
+    access: {
+        read: true,
+        create: true,
+        update: true,
+    },
+}
+
 module.exports = {
     DV_FIELD,
     SENDER_FIELD,
     ORGANIZATION_OWNED_FIELD,
+    COMMON_AND_ORGANIZATION_OWNED_FIELD,
 }
