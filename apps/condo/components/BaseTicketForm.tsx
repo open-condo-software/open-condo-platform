@@ -1,5 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
+// @ts-nocheck
 import { useIntl } from '@core/next/intl'
 import { Checkbox, Col, Form, Input, Row, Typography } from 'antd'
 import { useRouter } from 'next/router'
@@ -140,7 +140,7 @@ const ErrorsContainer = styled.div`
 export const BaseTicketForm:React.FC<ITicketFormProps> = (props) => {
     const intl = useIntl()
     // TODO(Dimitreee):remove after typo inject
-    const auth = useAuth() as { user: { id: string } }
+    const auth = useAuth() as { user: {id:string} }
     const router = useRouter()
 
     const UserInfoTitle = intl.formatMessage({ id: 'pages.condo.ticket.title.ClientInfo' })
