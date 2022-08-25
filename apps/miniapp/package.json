@@ -21,7 +21,7 @@
     "@condo/domains": "link:../condo/domains",
     "@condo/keystone": "workspace:^",
     "@condo/next": "workspace:^",
-    "@emotion/babel-plugin": "^11.10.0",
+    "@emotion/babel-plugin": "11.10.2",
     "@emotion/core": "^10.1.1",
     "@emotion/react": "^11.9.3",
     "@emotion/styled": "^11.10.0",
