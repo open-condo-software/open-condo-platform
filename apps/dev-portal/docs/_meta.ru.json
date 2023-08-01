@@ -1,0 +1,9 @@
+{
+  "index": {
+    "title": "Документация",
+    "hidden": true
+  },
+  "ui": "Condo UI",
+  "bridge": "Condo Bridge",
+  "api": "Condo API"
+}
