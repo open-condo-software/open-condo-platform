@@ -1,11 +1,11 @@
 {
-  "name": "@app/dev-api",
+  "name": "@app/dev-portal-api",
   "version": "1.0.0",
   "private": true,
   "scripts": {
     "test": "jest --unhandled-rejections=strict",
     "prepare": "node bin/prepare.js",
-    "build:deps": "turbo build --filter=@app/dev-api^...",
+    "build:deps": "turbo build --filter=@app/dev-portal-api^...",
     "build": "cross-env PHASE=build keystone build",
     "dev": "node --trace-warnings ./../../bin/run-keystone-app.js",
     "start": "NODE_ENV=production node ./../../bin/run-keystone-app.js",
@@ -18,7 +18,7 @@
     "worker": "cross-env PHASE=worker node worker.js"
   },
   "dependencies": {
-    "@dev-api/domains": "link:./domains",
+    "@dev-portal-api/domains": "link:./domains",
     "@faker-js/faker": "^7.6.0",
     "@keystonejs/adapter-knex": "^13.2.0",
     "@keystonejs/adapter-mongoose": "^11.2.0",
@@ -65,5 +65,5 @@
     "jest-jasmine2": "^29.7.0",
     "jest-watch-typeahead": "^0.6.1"
   },
-  "repository": "https://github.com/open-condo-software/condo/tree/main/apps/dev-api"
+  "repository": "https://github.com/open-condo-software/condo/tree/main/apps/dev-portal-api"
 }

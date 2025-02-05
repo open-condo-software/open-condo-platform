@@ -1,10 +1,10 @@
-# dev-api quick start
+# dev-portal-api quick start
 
 ```
 # create .env file!
 
 cat > .env << ENDOFFILE
-DATABASE_URL=postgresql://postgres:postgres@127.0.0.1/dev-api
+DATABASE_URL=postgresql://postgres:postgres@127.0.0.1/dev-portal-api
 NODE_ENV=development
 DISABLE_LOGGING=true
 COOKIE_SECRET=random
@@ -22,20 +22,20 @@ docker exec condo_postgresdb_1 bash -c "su postgres -c \"createdb ${DATABASE_NAM
 yarn
 
 # create first migration!
-yarn workspace @app/dev-api makemigrations
+yarn workspace @app/dev-portal-api makemigrations
 
 # migrate!
-yarn workspace @app/dev-api migrate
+yarn workspace @app/dev-portal-api migrate
 
 # run dev server!
-yarn workspace @app/dev-api dev
+yarn workspace @app/dev-portal-api dev
 ```
 
 # typescript GraphQL types
 
 ```
 # create ./schema.d.ts file with all GQL types
-yarn workspace @app/dev-api maketypes
+yarn workspace @app/dev-portal-api maketypes
 ```
 
 # project structure
