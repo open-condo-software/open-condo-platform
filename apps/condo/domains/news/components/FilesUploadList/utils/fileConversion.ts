@@ -215,9 +215,10 @@ export const convertFile = async (file: File, onProgress?: UploadRequestOption['
 
             let filename = file.name
             if (file.type === 'video/quicktime') filename = file.name.replace(/\.mov$/i, '.mp4')
+            const arrayBuffer = data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength) as ArrayBuffer
 
             return new File(
-                [data],
+                [arrayBuffer],
                 filename,
                 { type: 'video/mp4' }
             )

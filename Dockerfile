@@ -77,3 +77,4 @@ FROM base
 USER app:app
 WORKDIR /app
 COPY --from=builder --chown=app:app /app /app
+CMD ["bash", "-lc", "yarn workspace @app/condo start"]

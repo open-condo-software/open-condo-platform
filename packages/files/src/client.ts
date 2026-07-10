@@ -161,13 +161,15 @@ export async function upload ({ serverUrl, files, meta, attach }: UploadOptions)
         if (typeof Blob !== 'undefined' && f instanceof Blob) {
             form.append('file', f, filename)
         } else if (typeof Buffer !== 'undefined' && Buffer.isBuffer(f)) {
-            const blob = new Blob([f], { type: 'application/octet-stream' })
+            const arrayBuffer = f.buffer.slice(f.byteOffset, f.byteOffset + f.byteLength) as ArrayBuffer
+            const blob = new Blob([arrayBuffer], { type: 'application/octet-stream' })
             form.append('file', blob, filename)
         } else if (f && typeof f === 'object' && 'buffer' in f) {
             const { buffer, filename: fn } = f as { buffer: Buffer, filename?: string }
+            const arrayBuffer = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength) as ArrayBuffer
             const file = typeof File !== 'undefined'
-                ? new File([buffer], fn ?? filename, { type: 'application/octet-stream' })
-                : new Blob([buffer], { type: 'application/octet-stream' })
+                ? new File([arrayBuffer], fn ?? filename, { type: 'application/octet-stream' })
+                : new Blob([arrayBuffer], { type: 'application/octet-stream' })
             form.append('file', file as any, fn ?? filename)
         } else {
             throw new TypeError('Unsupported file type for append')
