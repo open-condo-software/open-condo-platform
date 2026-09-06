@@ -9,6 +9,7 @@ const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { i18n } = require('@open-condo/locales/loader')
 const { buildUserTopic, publish } = require('@open-condo/messaging')
 
+const { getUserAISkillsFilter } = require('@condo/domains/ai/access/AISkill')
 const { FlowiseAdapter, N8NAdapter } = require('@condo/domains/ai/adapters')
 const {
     TASK_STATUSES,
@@ -17,7 +18,7 @@ const {
     EXECUTION_AI_FLOW_TASK_FILE_MODEL_NAME,
 } = require('@condo/domains/ai/constants')
 const { CUSTOM_FLOW_TYPES_LIST, AI_FLOWS_CONFIG } = require('@condo/domains/ai/utils/flowsConfig')
-const { ExecutionAIFlowTask } = require('@condo/domains/ai/utils/serverSchema')
+const { ExecutionAIFlowTask, AISkill } = require('@condo/domains/ai/utils/serverSchema')
 const { restoreSensitiveData, removeSensitiveDataFromObj } = require('@condo/domains/ai/utils/serverSchema/removeSensitiveDataFromObj')
 const { TASK_WORKER_FINGERPRINT } = require('@condo/domains/common/constants/tasks')
 
@@ -152,6 +153,40 @@ const executeAIFlow = async (executionAIFlowTask, additionalContext = {}) => {
             }
 
             fullContext.attachments = resolvedAttachments
+        }
+
+        if (Array.isArray(fullContext.selectedSkillIds) && fullContext.selectedSkillIds.length > 0) {
+            const skillIds = fullContext.selectedSkillIds
+            delete fullContext.selectedSkillIds
+
+            const skillAccessFilter = await getUserAISkillsFilter(context, task.user)
+            const sudoContext = context.createContext({ skipAccessControl: true })
+            const skills = await AISkill.getAll(sudoContext, {
+                AND: [
+                    { id_in: skillIds, deletedAt: null },
+                    skillAccessFilter,
+                ],
+            }, '{ id name description content license compatibility metadata allowedTools }')
+
+            if (skills.length !== skillIds.length) {
+                throw new Error('Skill not found or access denied')
+            }
+
+            const skillsById = new Map(skills.map(skill => [skill.id, skill]))
+            fullContext.skills = skillIds.map(id => {
+                const skill = skillsById.get(id)
+                if (!skill) throw new Error('Skill not found or access denied')
+
+                return {
+                    name: skill.name,
+                    description: skill.description,
+                    content: skill.content,
+                    ...(skill.license ? { license: skill.license } : {}),
+                    ...(skill.compatibility ? { compatibility: skill.compatibility } : {}),
+                    ...(skill.metadata ? { metadata: skill.metadata } : {}),
+                    ...(skill.allowedTools ? { 'allowed-tools': skill.allowedTools } : {}),
+                }
+            })
         }
 
         let prediction

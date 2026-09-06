@@ -33,6 +33,7 @@ interface IMenuItemProps {
     isCollapsed?: boolean
     onClick?: () => void
     excludePaths?: Array<RegExp>
+    tooltip?: React.ReactNode
 
     toolTipDecorator? (params: INoOrganizationToolTipWrapper): JSX.Element
 }
@@ -57,6 +58,7 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
         onClick,
         excludePaths = [],
         labelRaw,
+        tooltip,
     } = props
     const router = useRouter()
     const asPath = router.asPath
@@ -120,7 +122,9 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
             {
                 (isCollapsed && !disabled)
                     ? addToolTipForCollapsedMenu(linkContent, Message)
-                    : linkContent
+                    : (tooltip && !disabled)
+                        ? addToolTipForCollapsedMenu(linkContent, tooltip)
+                        : linkContent
             }
         </div>
     )

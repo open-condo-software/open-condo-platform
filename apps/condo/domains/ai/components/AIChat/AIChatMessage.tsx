@@ -2,7 +2,8 @@ import React, { useCallback, useRef, useState } from 'react'
 
 import { Check, Copy, Download } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Button, Dropdown, Markdown, Tooltip, Typography } from '@open-condo/ui'
+import { Button, Dropdown, Markdown, Tag, Tooltip, Typography } from '@open-condo/ui'
+import { colors } from '@open-condo/ui/colors'
 
 import { AIChatDocument } from '@condo/domains/ai/components/AIChatFile'
 import { exportAIMessage, type ExportAIMessageFormat, type ExportAIMessageOptions } from '@condo/domains/ai/utils/exportAIMessage'
@@ -83,6 +84,19 @@ const AIChatUserMessage: React.FC<{ message: Message }> = ({ message }) => {
                     )}
                     {(message.content.text?.trim() || message.content.attachments?.length) ? (
                         <div className={styles.userMessageBubble}>
+                            {message.content.skillNames?.length ? (
+                                <div className={styles.userMessageSkillTag}>
+                                    {message.content.skillNames.map(skillName => (
+                                        <Tag
+                                            key={skillName}
+                                            textColor={colors.purple['7']}
+                                            bgColor={colors.purple['1']}
+                                        >
+                                            {skillName}
+                                        </Tag>
+                                    ))}
+                                </div>
+                            ) : null}
                             {message.content.text?.trim() ? (
                                 <Typography.Text>{message.content.text}</Typography.Text>
                             ) : null}
